@@ -1,7 +1,7 @@
 
 import './App.css';
 import 'semantic-ui-css/semantic.min.css';
-import { Grid, Form, Dropdown, Header, Label, Checkbox, Button, Input, GridColumn, Table} from 'semantic-ui-react';
+import { Grid, Form, Dropdown, Header, Label, Checkbox, Button, Input, GridColumn, Table, TableHeaderCell, Menu, Icon, TableHeader} from 'semantic-ui-react';
 import React, {useEffect, useState} from "react"; 
 import { restaurantOptions, getData, postData} from './Utility';
 
@@ -36,11 +36,48 @@ function App() {
           value: metric.metricCode
         }
   });
+
   function getColumns() {
-    let columns = [];
-    metricOptions.forEach(element => columns.push(element.text));
-    return columns;
+    return <TableHeader>
+            <Table.Row>
+              <TableHeaderCell>Restaurant Id</TableHeaderCell>
+              <TableHeaderCell>Transaction Date</TableHeaderCell>
+              <TableHeaderCell>Transaction Time</TableHeaderCell>
+              <TableHeaderCell>Ticket Number</TableHeaderCell>
+              { metricDefinitions.map((metric, index) => {
+                return <TableHeaderCell>{metric.alias}</TableHeaderCell>;})
+              }
+            </Table.Row>
+          </TableHeader>;
   }
+  function getRows() {
+    return <Table.Body>
+              {results.map((result,index) => { 
+                return <Table.Row>
+                        <TableHeaderCell>{result.restaurantId}</TableHeaderCell>
+                        <TableHeaderCell>{result.busDt}</TableHeaderCell>
+                        <TableHeaderCell>{result.orderTime}</TableHeaderCell>
+                        <TableHeaderCell>{result.orderNumber}</TableHeaderCell>
+                        <TableHeaderCell>{result.totalAmount}</TableHeaderCell>
+                        <TableHeaderCell>{result.netAmount}</TableHeaderCell>
+                        <TableHeaderCell>{result.itemSoldQty}</TableHeaderCell>
+                        <TableHeaderCell>{result.beverageQty}</TableHeaderCell>
+                        <TableHeaderCell>{result.discountAmount}</TableHeaderCell>
+                        <TableHeaderCell>{result.discountRatio}</TableHeaderCell>
+                        <TableHeaderCell>{result.itemDeletedAmount}</TableHeaderCell>
+                        <TableHeaderCell>{result.refundAmount}</TableHeaderCell>
+                      </Table.Row>
+                ;})
+              }
+            </Table.Body>;
+  }
+  function getResultsTable() {
+    return <Table celled>
+              {getColumns()}
+              {getRows()}
+            </Table>;
+  }
+  
   function onSubmit() {
     const queryRequest = {
       restaurantIds: restaurantIds,
@@ -55,6 +92,7 @@ function App() {
     
       postData("https://customsearchquerytoolapi.azurewebsites.net/Search/Query", queryRequest)
       .then(data=>{
+          console.log(data);
           setResults(data);
       })
       .catch(err => {
@@ -91,61 +129,61 @@ function App() {
         <Grid.Row>
           <Grid.Column>
             <Form onSubmit={(event, data) => onSubmit()}>
-                <Form.Field>
-                  <Header as='h2'>Restaurant ID</Header>
-                  <Dropdown
-                    options={restaurantOptions}
-                    multiple
-                    selection
-                    placeholder="Select"
-                    value={restaurantIds}
-                    onChange={(event, data) => setRestaurantIds(data.value)}
-                  >
-                  </Dropdown>
-                </Form.Field>
+              <Form.Field>
+                <Header as='h2'>Restaurant ID</Header>
+                <Dropdown
+                  options={restaurantOptions}
+                  multiple
+                  selection
+                  placeholder="Select"
+                  value={restaurantIds}
+                  onChange={(event, data) => setRestaurantIds(data.value)}
+                >
+                </Dropdown>
+              </Form.Field>
 
-                <Form.Field>
-                  <Header as='h2'>Date</Header>
-                  <Label>From</Label>
-                  <Label>To</Label>
-                  <DateRangePicker
-                    startDate={startDate}
-                    startDateId="startDate"
-                    endDate={endDate}
-                    endDateId="endDate"
-                    onDatesChange={onDatesChange}
-                    focusedInput={focusedInput}
-                    onFocusChange={focusedInput => setFocusedInput(focusedInput)}
-                    required
-                    isOutsideRange={() => false}
-                  />
-                </Form.Field>
+              <Form.Field>
+                <Header as='h2'>Date</Header>
+                <Label>From</Label>
+                <Label>To</Label>
+                <DateRangePicker
+                  startDate={startDate}
+                  startDateId="startDate"
+                  endDate={endDate}
+                  endDateId="endDate"
+                  onDatesChange={onDatesChange}
+                  focusedInput={focusedInput}
+                  onFocusChange={focusedInput => setFocusedInput(focusedInput)}
+                  required
+                  isOutsideRange={() => false}
+                />
+              </Form.Field>
 
-                <Form.Field>
-                  <Header as='h2'>Transaction Time</Header>
-                  <Label>From</Label>
-                  <TimePicker
-                    format='h a'
-                    use12Hours
-                    inputReadOnly
-                    showSecond={false}
-                    showMinute={false}
-                    defaultValue={moment().hour(6)}
-                    onChange={onStartTimeChange} 
-                  />
-                  <Label>To</Label>
-                  <TimePicker
-                    format='h a'
-                    use12Hours
-                    inputReadOnly
-                    showSecond={false}
-                    showMinute={false}
-                    defaultValue={moment().hour(5)}
-                    onChange={onEndTimeChange}
-                  />
-                </Form.Field>
-                
-                <Form.Field>
+              <Form.Field>
+                <Header as='h2'>Transaction Time</Header>
+                <Label>From</Label>
+                <TimePicker
+                  format='h a'
+                  use12Hours
+                  inputReadOnly
+                  showSecond={false}
+                  showMinute={false}
+                  defaultValue={moment().hour(6)}
+                  onChange={onStartTimeChange} 
+                />
+                <Label>To</Label>
+                <TimePicker
+                  format='h a'
+                  use12Hours
+                  inputReadOnly
+                  showSecond={false}
+                  showMinute={false}
+                  defaultValue={moment().hour(5)}
+                  onChange={onEndTimeChange}
+                />
+              </Form.Field>
+              
+              <Form.Field>
                   <Header as='h2'>Select Metric</Header>
                   <Dropdown
                     options={metricOptions}
@@ -199,6 +237,7 @@ function App() {
                   onChange={(event, data) => setMeasure(data.value)}
                 />              
               </Form.Field>
+
               <Form.Field>
                 <Header as='h2'>Enter Value</Header>
                 <Input 
@@ -211,6 +250,7 @@ function App() {
                 >
                 </Input>
               </Form.Field>
+
               <Form.Field>
                 <Button type="button" onClick={(event, data) => {
                     const newMetricQuery = [];
@@ -227,18 +267,18 @@ function App() {
                   >
                     Add Criteria
                   </Button>
-                </Form.Field>
+              </Form.Field>
                     
-                <Form.Field>
-                  <Button type="submit">SEARCH</Button>
-                </Form.Field>
+              <Form.Field>
+                <Button type="submit">SEARCH</Button>
+              </Form.Field>
             </Form>
           </Grid.Column>
         </Grid.Row>
         <Grid.Row>
           <GridColumn>
           {isSubmitted ? 
-            (<p>Table</p>): //will add table
+            (getResultsTable()): //will add table
             (<p></p>)
             
           }
