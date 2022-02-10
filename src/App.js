@@ -96,14 +96,12 @@ function App() {
                         <Table.Cell>{convertTime(result.orderTime)}</Table.Cell>
                         <Table.Cell>{result.orderNumber}</Table.Cell>
 
-                        <Table.Cell>{convertData(metricDefinitions[0], result.totalAmount)}</Table.Cell>
-                        <Table.Cell>{convertData(metricDefinitions[1],result.netAmount)}</Table.Cell>
-                        <Table.Cell>{convertData(metricDefinitions[2],result.itemSoldQty)}</Table.Cell>
-                        <Table.Cell>{convertData(metricDefinitions[3],result.beverageQty)}</Table.Cell>
-                        <Table.Cell>{convertData(metricDefinitions[4],result.discountAmount)}</Table.Cell>
-                        <Table.Cell>{convertData(metricDefinitions[5],result.discountRatio)}</Table.Cell>
-                        <Table.Cell>{convertData(metricDefinitions[6],result.itemDeletedAmount)}</Table.Cell>
-                        <Table.Cell>{convertData(metricDefinitions[7],result.refundAmount)}</Table.Cell>
+                        {metricDefinitions.map(metricDef => {
+                            var key = metricDef.metricCode;
+                            key = key.charAt(0).toLowerCase() + key.slice(1); //make first letter lowercase so it matches with API property names
+                            return <Table.Cell>{convertData(metricDef,result[key])}</Table.Cell>;
+                        })}
+                       
                       </Table.Row>
                 ;})
               }
