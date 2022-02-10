@@ -77,3 +77,21 @@ export async function postData(url="", data={}) {
     }
 }
 
+export function getCompareType(type){
+    if(type=== "LessThan") {
+        return "<";
+    }
+    else if(type=== "LessThanOrEqual") {
+        return "<="
+    }
+    else if(type=== "Equal") {
+        return "="
+    }
+    else if(type=== "GreaterThanOrEqual") {
+        return ">="
+    }
+    else {
+        return ">"
+    }
+}
+

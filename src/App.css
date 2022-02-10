@@ -1,5 +1,145 @@
 
-.Grid {
-  margin: auto;
+html body{
+  background-color: #f3f5f9;
+}
+
+.App .ui.segment.formSegment {
+  background-color: #fdfdfd;
+  border-radius: 19px;
+  margin-top: 10px;
+  box-shadow: 2px 2px rgba(202,202,202,0.8);
+
+}
+.App .ui.segment.resultHeaderSegment {
+  border: 0 none;
+  box-shadow: none;
+  padding: 0;
+  margin: 10px 0;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  align-items: end;
+  gap: 10px;
+}
+.App .ui.segment.criteriaSegment {
+  border: 0 none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+}
+.App .ui.pagination {
+  justify-self: end;
+}
+
+.App .ui.form {
+  margin: 20px auto;
   width: 50%;
 }
+
+.App .ui.header {
+  color: #0e8fab;
+}
+.App .ui.header.sectionHeader{
+  color: #666666;
+  margin-bottom: 0px;
+  margin-left: 12px;
+}
+.App .ui.header.title{
+  font-weight: bold;
+  text-align: center;
+}
+
+.App .ui.button[type="submit"] {
+  background-color:#f1795a;
+  color: white;
+  width: 25%;
+  
+}
+
+.App .DateRangePicker {
+  display: block;
+}
+
+.App .ui.label {
+  margin-bottom: 5px;
+}
+.App .ui.label.toTimeLabel {
+  margin-left: 48px;
+}
+
+.App .ui.radio.checkbox{
+  margin-right: 18px;
+  font-size: 20px;
+}
+.App .ui.radio.checkbox label {
+  padding-left: 20px;
+}
+
+.App .column.resultsSection {
+  
+  background-color: #fdfdfd;
+  padding: 20px;
+}
+
+.App .ui.table thead tr th {
+  background-color:#f1795a;
+  color: white;
+  font-size: 18px;
+ 
+}
+.App .ui.form .field>.selection.dropdown{
+ width: 550px;
+}
+.App .ui.form .field .ui.input {
+  width: 250px;
+}
+
+.App .ui.header.sectionHeader.metric{
+  display: inline;
+  
+}
+
+.App .field.submitField {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.App .ui.button.addButton {
+  background-color: #f1795a;
+  color: white;
+  margin-right: 5px;
+}
+
+
+.App .ui.button.deleteButton {
+  color: #0e8fab;
+  background-color: #f3f5f9;
+  
+}
+.App .ui.button.deleteButton:hover {
+  color: white;
+  background-color: #0e8fab;
+}
+
+.App .DateRangePickerInput_arrow {
+  margin: 0px 13px;
+}
+.App .DateInput {
+  width:250px;
+}
+
+.App .ui.grid>.row .resultsSection{
+  padding-left: 1rem;
+  margin: 0 50px;
+}
+
+.App .column.resultsSection .criteria {
+  font-size: 18px;
+  display: inline-block;
+  background-color: #f3f5f9;
+  margin-right: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 0;
+}
+
