@@ -62,7 +62,6 @@ html body{
 
 .App .ui.label{
   vertical-align: bottom;
-  width: 5%;
   text-align: center;
 }
 .App .ui.label.toTimeLabel {
