@@ -36,8 +36,8 @@ function App() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [focusedInput, setFocusedInput] = useState(null);
-  const [startTime, setStartTime] = useState("6");
-  const [endTime, setEndTime] = useState("5");
+  const [startTime, setStartTime] = useState(6);
+  const [endTime, setEndTime] = useState(29); //5am next day
 
   const [metricDefinitions, setMetricDefinitions] = useState([]);
   const [isSubmitted, setSubmitted] = useState(false);
@@ -52,8 +52,8 @@ function App() {
       restaurantIds: restaurantIds,
       fromDate: startDate.format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
       toDate: endDate.format(("YYYY-MM-DDTHH:mm:ss.SSSZ")),
-      fromHour: parseInt(startTime),
-      toHour: parseInt(endTime),
+      fromHour: startTime,
+      toHour: endTime,
       metricCriteria: metricQuery
     }; 
 
@@ -83,10 +83,16 @@ function App() {
     setEndDate(endDate);
   };
   const onStartTimeChange = value => {
-    setStartTime( value.format('H') );
+    setStartTime(parseInt(value.format('H')));
+    
   };
   const onEndTimeChange = value => {
-    setEndTime( value.format('H'));
+    var time = parseInt(value.format('H'));
+    if(time < startTime) { //next day
+        time += 24;
+    }
+    console.log(time);
+    setEndTime(time);
   };
   function updateQuery(value, index, attribute) {
     const newMetricQuery = [];
@@ -196,7 +202,7 @@ function App() {
                     bottom: 30,
                   }}
                   data={dailyAverages}
-                >
+                > 
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" angle={90} dy={30} dx={5}/>
                   <YAxis />
@@ -371,6 +377,10 @@ function App() {
                     defaultValue={moment().hour(5)}
                     onChange={onEndTimeChange}
                   />
+                  { endTime>24 ? 
+                    <p className="nextDay">* {endTime-24}a.m. next day</p>:
+                    <></>
+                  }
                 </Form.Field>
               </Segment>
               

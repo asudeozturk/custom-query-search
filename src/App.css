@@ -142,4 +142,8 @@ html body{
   border-radius: 5px;
   margin-bottom: 0;
 }
-
+.nextDay {
+  display: inline;
+  margin-left: 5px;
+  color:#666666;
+}
