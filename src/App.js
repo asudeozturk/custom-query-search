@@ -2,8 +2,18 @@
 import './App.css';
 import 'semantic-ui-css/semantic.min.css';
 import { Grid, Form, Dropdown, Header, Label, Checkbox, Button, Input, GridColumn, Table, TableHeaderCell, Pagination, TableHeader, Segment, Icon} from 'semantic-ui-react';
-import React, {useEffect, useState} from "react"; 
-import { restaurantOptions, getData, postData, getCompareType} from './Utility';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from "recharts";
+import React, {useEffect, useState, PureComponent} from "react"; 
+import { restaurantOptions, getData, postData, getCompareType, getColor} from './Utility';
 
 import 'react-dates/initialize';
 import {DateRangePicker} from 'react-dates';
@@ -119,6 +129,102 @@ function App() {
     
   }, []);
 
+  
+  function getAverages() {
+    const averages =[];
+    var date = moment(startDate);
+
+    while(date.isSameOrBefore(endDate)) {
+      
+      averages.push(calculateAverages(date));
+      date.add(1,'days');
+    }
+    return averages;
+  }
+
+  
+  function calculateAverages(date) {
+    const dateString = date.format("YYYY-MM-DDT00:mm:ss");
+    const resultOnDate = results.filter((result) => result.busDt === dateString);
+    date = {
+      "date": date.format("MM/DD/YYYY")
+    };
+   
+    for(var i=0; i<metricQuery.length;i++){
+      var metric = metricQuery[i].metricCode;
+      var key = metric.charAt(0).toLowerCase() + metric.slice(1);
+      var sum = 0;
+
+      for(var j =0; j < resultOnDate.length; j++) {
+        sum += parseFloat(resultOnDate[j][key]);
+      }
+      const average = (sum/resultOnDate.length).toFixed(2);
+      date[metric] = average;
+    }
+    return date;
+  }
+
+  class CustomizedLabel extends PureComponent {
+    render() {
+      const { x, y, stroke, value } = this.props;
+      
+      return (
+        <text x={x} y={y} dy={-4} fill={stroke} fontSize={18} textAnchor="middle">
+          {value}
+        </text>
+      );
+    }
+  }
+
+  const renderLabel = (value, entry) => {
+    const { color } = entry;
+    const label = metricDefinitions.find(x => x.metricCode === value).alias;
+    return <span style={{ color }}>{label}</span>;
+  };
+ 
+  function getResultsGraph() {
+    const dailyAverages = getAverages();
+    return <Grid.Row>
+            <GridColumn className="resultsSection">
+             <Header as="h2">Results Graph</Header>
+             <ResponsiveContainer width="100%" height={800}>
+              <LineChart
+                  margin={{
+                    top: 30,
+                    right: 30,
+                    left: 30,
+                    bottom: 30,
+                  }}
+                  data={dailyAverages}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" angle={90} dy={30} dx={5}/>
+                  <YAxis />
+                  <Tooltip />
+                  <Legend verticalAlign="top" 
+                          height={36} 
+                          iconSize={20} 
+                          iconType="square"
+                          formatter={renderLabel}
+                  />
+                  {metricQuery.map((metric, index) => {
+                    var key = metric.metricCode;
+                    
+                    return <Line type="monotone"  
+                                  strokeWidth={3} 
+                                  dataKey={key}
+                                  connectNulls 
+                                  label={<CustomizedLabel />}
+                                  stroke={getColor(index)}
+                          />;
+                  })}
+                
+                </LineChart>
+              </ResponsiveContainer>
+            </GridColumn>
+          </Grid.Row>
+  }
+
   function getResultsTable() {
     return <Grid.Row>
               <GridColumn className="resultsSection">
@@ -128,7 +234,8 @@ function App() {
                   <Segment className='criteriaSegment'>
                     {metricQuery.map((metric, index) => {
                     return <p className="criteria">
-                            {metricDefinitions.find(x => x.metricCode === metric.metricCode).alias} {getCompareType(metric.compareType)} {metric.value} 
+                            {metricDefinitions.find(x => x.metricCode === metric.metricCode).alias} 
+                            {getCompareType(metric.compareType)} {metric.value} 
                           </p>;})
                     }
                   </Segment>
@@ -276,7 +383,6 @@ function App() {
                 <></>
               }
               
-
               {metricQuery.map((criteria, index) => {  //add criteria components
                 return <Segment key={index} className="formSegment">
                         <Grid columns={2} stackable>
@@ -370,6 +476,7 @@ function App() {
         </Grid.Row>
         
         {isSubmitted ? getResultsTable() : <></>}
+        {isSubmitted ? getResultsGraph() : <></>}
       </Grid>
 
     </div>

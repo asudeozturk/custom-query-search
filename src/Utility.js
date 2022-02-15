@@ -1,3 +1,4 @@
+
 export const restaurantOptions = [
     {
         key: 1,
@@ -95,3 +96,35 @@ export function getCompareType(type){
     }
 }
 
+export function getColor(index) {
+    var color = "#000000";
+    switch (index) {
+        case 0:
+            color = "#0e8fab";
+            break;
+        case 1:
+            color = "#f1795a";
+            break;
+        case 2:
+            color = "pink";
+            break;
+        case 3:
+            color = "red";
+            break;
+        case 4:
+            color = "yellow";
+            break;
+        case 5:
+            color = "purple";
+            break;
+        case 6:
+            color = "black";
+            break;
+        case 7:
+            color = "brown";
+            break;
+        default:
+          break;
+      }
+    return color;
+}
