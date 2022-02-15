@@ -100,10 +100,10 @@ export function getColor(index) {
     var color = "#000000";
     switch (index) {
         case 0:
-            color = "#0e8fab";
+            color = "#f1795a";
             break;
         case 1:
-            color = "#f1795a";
+            color = "#0e8fab";
             break;
         case 2:
             color = "pink";

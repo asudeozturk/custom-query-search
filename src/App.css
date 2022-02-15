@@ -32,7 +32,7 @@ html body{
 
 .App .ui.form {
   margin: 20px auto;
-  width: 50%;
+  width: 55%;
 }
 
 .App .ui.header {
@@ -46,6 +46,7 @@ html body{
 .App .ui.header.title{
   font-weight: bold;
   text-align: center;
+  margin-top: 20px;
 }
 
 .App .ui.button[type="submit"] {
@@ -59,11 +60,13 @@ html body{
   display: block;
 }
 
-.App .ui.label {
-  margin-bottom: 5px;
+.App .ui.label{
+  vertical-align: bottom;
+  width: 5%;
+  text-align: center;
 }
 .App .ui.label.toTimeLabel {
-  margin-left: 48px;
+  margin-left: 6%;
 }
 
 .App .ui.radio.checkbox{
@@ -87,10 +90,10 @@ html body{
  
 }
 .App .ui.form .field>.selection.dropdown{
- width: 550px;
+ width: 58%;
 }
-.App .ui.form .field .ui.input {
-  width: 250px;
+.App .ui.form .field>.selection.dropdown.metricInputs{
+  width: 100%;
 }
 
 .App .ui.header.sectionHeader.metric{
@@ -124,13 +127,18 @@ html body{
 .App .DateRangePickerInput_arrow {
   margin: 0px 13px;
 }
+.App .DateRangePickerInput {
+  width: 100%;
+}
 .App .DateInput {
-  width:250px;
+  width: 26%;
 }
 
 .App .ui.grid>.row .resultsSection{
   padding-left: 1rem;
-  margin: 0 50px;
+  margin-left: 40px;
+  margin-right: 40px;
+  overflow-y: auto;
 }
 
 .App .column.resultsSection .criteria {
@@ -146,4 +154,8 @@ html body{
   display: inline;
   margin-left: 5px;
   color:#666666;
+}
+
+.App .ui.header.sectionTitle  {
+  text-align: center;
 }

@@ -192,20 +192,20 @@ function App() {
     const dailyAverages = getAverages();
     return <Grid.Row>
             <GridColumn className="resultsSection">
-             <Header as="h2">Results Graph</Header>
-             <ResponsiveContainer width="100%" height={800}>
+             <Header as="h2" className="sectionTitle">Daily Average Values by Metric</Header>
+             <ResponsiveContainer height={600} width="100%">
               <LineChart
                   margin={{
-                    top: 35,
-                    right: 35,
-                    left: 35,
-                    bottom: 35,
+                    top: 20,
+                    right: 20,
+                    left: 0,
+                    bottom: 50,
                   }}
                   data={dailyAverages}
                 > 
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" angle={90} dy={35} dx={5}/>
-                  <YAxis />
+                  <YAxis/>
                   <Tooltip />
                   <Legend verticalAlign="top" 
                           height={36} 
@@ -234,7 +234,7 @@ function App() {
   function getResultsTable() {
     return <Grid.Row>
               <GridColumn className="resultsSection">
-                <Header as="h2">Results</Header>
+                <Header as="h2" className="sectionTitle">Results</Header>
               
                 <Segment className='resultHeaderSegment'>
                   <Segment className='criteriaSegment'>
@@ -251,8 +251,8 @@ function App() {
                   totalPages={Math.ceil(results.length/rowPerPage)}
                 />
                 </Segment>
-          
-                <Table celled collapsing>
+                
+                <Table celled collapsing >
                   {getColumns()}
                   {getRows(activePage)}
                 </Table>
@@ -404,6 +404,7 @@ function App() {
                                       options={metricOptions}
                                       selection
                                       placeholder="Select"
+                                      className="metricInputs"
                                       value={criteria.metricCode}
                                       onChange={(event, data) => updateQuery(data.value, index, "metricCode")}
                                     />
@@ -460,7 +461,7 @@ function App() {
                                     value={criteria.value}
                                     onChange={(event, data) => updateQuery(parseFloat(data.value), index, "value")}
                                     required
-                                    className='valueInput'
+                                    className="metricInputs"
                                   />
                                 </Form.Field>
                               </Grid.Column>
