@@ -14,38 +14,110 @@ import 'rc-time-picker/assets/index.css';
 import moment from 'moment';
 
 function App() {
+  const rowPerPage = 10;
+  const defaultCriteria = {
+    "metricCode": "",
+    "compareType": "LessThan",
+    "value": 0
+  };
+  
+
   const [restaurantIds, setRestaurantIds] = useState([]);
-  const [metrics, setMetrics] = useState([]);
-  const [measures, setMeasure] = useState('LessThan');
-  const [compareValue, setCompareValue] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [focusedInput, setFocusedInput] = useState(null);
   const [startTime, setStartTime] = useState("6");
   const [endTime, setEndTime] = useState("5");
+
   const [metricDefinitions, setMetricDefinitions] = useState([]);
-
-  const firstMetric = {
-    "metricCode": "",
-    "compareType": "",
-    "value": 0
-  };
-  const [metricQuery, setMetricQuery] = useState([firstMetric]);
-
   const [isSubmitted, setSubmitted] = useState(false);
+  const [metricQuery, setMetricQuery] = useState([defaultCriteria]);
   const [results, setResults] = useState([]);
-
   const [activePage, setActivePage] = useState(1);
 
 
 
-  const metricOptions= metricDefinitions.map((metric, index) => {
-        return {
-          key: index,
-          text: metric.alias,
-          value: metric.metricCode
-        }
+  function onSubmit() {
+    const queryRequest = {
+      restaurantIds: restaurantIds,
+      fromDate: startDate.format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
+      toDate: endDate.format(("YYYY-MM-DDTHH:mm:ss.SSSZ")),
+      fromHour: parseInt(startTime),
+      toHour: parseInt(endTime),
+      metricCriteria: metricQuery
+    }; 
+
+    console.log(queryRequest);
+    
+    postData("https://customsearchquerytoolapi.azurewebsites.net/Search/Query", queryRequest)
+    .then(data=>{
+        console.log(data);
+        setResults(data); //receive results from API
+        setSubmitted(true); //used for showing the table when form is submitted
+    })
+    .catch(err => {
+      console.log(err);
+    });
+    
+  }
+
+  const metricOptions = metricDefinitions.map((metric, index) => {
+    return {
+      key: index,
+      text: metric.alias,
+      value: metric.metricCode
+    }
   });
+  const onDatesChange = ({ startDate, endDate }) => {
+    setStartDate(startDate);
+    setEndDate(endDate);
+  };
+  const onStartTimeChange = value => {
+    setStartTime( value.format('H') );
+  };
+  const onEndTimeChange = value => {
+    setEndTime( value.format('H'));
+  };
+  function updateQuery(value, index, attribute) {
+    const newMetricQuery = [];
+    for(var i = 0; i<metricQuery.length; i++) {
+      newMetricQuery.push(metricQuery[i]);
+    }
+    newMetricQuery[index][attribute] = value;
+    setMetricQuery(newMetricQuery);
+  }
+  function deleteQuery(index) {
+    const newMetricQuery = [];
+    for(var i = 0; i<metricQuery.length; i++) {
+      newMetricQuery.push(metricQuery[i]);
+    }
+    newMetricQuery.splice(index,1);
+    setMetricQuery(newMetricQuery);
+  }
+
+  function onPaginationChange(activePage) {
+    setActivePage(activePage);
+    getColumns(activePage);
+  }
+  function onAddCriteria() {
+    const newMetricQuery = [];
+    for(var i = 0; i<metricQuery.length; i++) {
+      newMetricQuery.push(metricQuery[i]);
+    }
+    newMetricQuery.push(defaultCriteria);
+    setMetricQuery(newMetricQuery);
+  }
+
+  useEffect(() => {
+    getData("https://customsearchquerytoolapi.azurewebsites.net/Search/MetricDefinitions")
+    .then(data=>{
+        setMetricDefinitions(data);
+    })
+    .catch(err => {
+      console.log("Error");
+    });
+    
+  }, []);
 
   function getResultsTable() {
     return <Grid.Row>
@@ -63,7 +135,7 @@ function App() {
                   <Pagination
                   activePage={activePage}
                   onPageChange={(event,data)=>onPaginationChange(data.activePage)}
-                  totalPages={Math.ceil(results.length/10)}
+                  totalPages={Math.ceil(results.length/rowPerPage)}
                 />
                 </Segment>
           
@@ -74,53 +146,52 @@ function App() {
             </GridColumn>
           </Grid.Row>
   }
-  function getColumns() {
+  function getColumns() { //add column names
     return <TableHeader>
             <Table.Row>
               <TableHeaderCell>Restaurant Id</TableHeaderCell>
               <TableHeaderCell>Transaction Date</TableHeaderCell>
               <TableHeaderCell>Transaction Time</TableHeaderCell>
               <TableHeaderCell>Ticket Number</TableHeaderCell>
-              { metricDefinitions.map((metric, index) => {
-                return <TableHeaderCell>{metric.alias}</TableHeaderCell>;})
-              }
+              { metricDefinitions.map((metric) => {
+                return <TableHeaderCell>{metric.alias}</TableHeaderCell>;
+              })}
             </Table.Row>
           </TableHeader>;
   }
-  function getRows(activePage) {
+  function getRows(activePage) { //add rows for data
     return <Table.Body>
-              {results.slice((activePage-1)*10, (activePage-1)*10 + 10).map((result,index) => { 
+              {results.slice((activePage-1)*rowPerPage, (activePage-1)*rowPerPage + rowPerPage).map((result) => { //get results based on activePage
                 return <Table.Row>
                         <Table.Cell>{result.restaurantId}</Table.Cell>
-                        <Table.Cell>{convertDate(result.busDt)}</Table.Cell>
-                        <Table.Cell>{convertTime(result.orderTime)}</Table.Cell>
+                        <Table.Cell>{formatDate(result.busDt)}</Table.Cell>
+                        <Table.Cell>{formatTime(result.orderTime)}</Table.Cell>
                         <Table.Cell>{result.orderNumber}</Table.Cell>
 
                         {metricDefinitions.map(metricDef => {
                             var key = metricDef.metricCode;
                             key = key.charAt(0).toLowerCase() + key.slice(1); //make first letter lowercase so it matches with API property names
-                            return <Table.Cell>{convertData(metricDef,result[key])}</Table.Cell>;
+                            return <Table.Cell>{formatData(metricDef,result[key])}</Table.Cell>;
                         })}
-                       
-                      </Table.Row>
-                ;})
+                      </Table.Row>;
+                })
               }
             </Table.Body>;
   }
 
-  function convertDate(date) {
+  function formatDate(date) {
     var m = moment(date);
     var newFormat = m.format('MM/DD/YYYY');
 
     return newFormat;
   }
-  function convertTime(time) {
+  function formatTime(time) {
     var m = moment(time);
     var newFormat = m.format('h:mm A');
 
     return newFormat;
   }
-  function convertData(metricDef, data){
+  function formatData(metricDef, data){
     const type = metricDef.dataType;
     const decimal = metricDef.decimalPlaces;
     if(type === "Money") {
@@ -133,87 +204,6 @@ function App() {
       return Number(data).toFixed(decimal);
     }
   }
-
-  
-  function onSubmit() {
-    const queryRequest = {
-      restaurantIds: restaurantIds,
-      fromDate: startDate.format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-      toDate: endDate.format(("YYYY-MM-DDTHH:mm:ss.SSSZ")),
-      fromHour: parseInt(startTime),
-      toHour: parseInt(endTime),
-      metricCriteria: metricQuery
-    };
-
-    console.log(queryRequest);
-    
-      postData("https://customsearchquerytoolapi.azurewebsites.net/Search/Query", queryRequest)
-      .then(data=>{
-          console.log(data);
-          setResults(data);
-      })
-      .catch(err => {
-        console.log(err);
-      });
-      setSubmitted(true);
-  }
-  
-  function updateQuery(value, index, attribute) {
-    const newMetricQuery = [];
-    for(var i = 0; i<metricQuery.length; i++) {
-      newMetricQuery.push(metricQuery[i]);
-    }
-    newMetricQuery[index][attribute] = value;
-    setMetricQuery(newMetricQuery);
-  }
-
-  function deleteQuery(index) {
-    const newMetricQuery = [];
-    for(var i = 0; i<metricQuery.length; i++) {
-      newMetricQuery.push(metricQuery[i]);
-    }
-    newMetricQuery.splice(index,1);
-    setMetricQuery(newMetricQuery);
-  }
-
-  function checkLength(index) {
-    if(metricQuery.length > 1) {
-      return <>
-              <Grid.Column>
-                <Button icon type="button" onClick={(event, data) => deleteQuery(index)} className="deleteButton" floated="right">
-                  <Icon name="delete" />
-                </Button>
-              </Grid.Column>
-          </>;
-    }
-  }
-
-  useEffect(() => {
-    getData("https://customsearchquerytoolapi.azurewebsites.net/Search/MetricDefinitions")
-    .then(data=>{
-        setMetricDefinitions(data);
-    })
-    .catch(err => {
-      console.log("Error");
-    });
-    
-  }, []);
-
-  const onDatesChange = ({ startDate, endDate }) => {
-    setStartDate(startDate);
-    setEndDate(endDate);
-  };
-  const onStartTimeChange = value => {
-    setStartTime( value.format('H') );
-  };
-  const onEndTimeChange = value => {
-    setEndTime( value.format('H'));
-  };
-  const onPaginationChange = activePage => {
-
-    setActivePage(activePage);
-    getColumns(activePage);
-  };
 
   return (
     <div className="App">
@@ -233,13 +223,11 @@ function App() {
                     placeholder="Select"
                     value={restaurantIds}
                     onChange={(event, data) => setRestaurantIds(data.value)}
-                  >
-                  </Dropdown>
+                  />
                 </Form.Field>
 
                 <Form.Field>
                   <Header as='h3'>Date</Header>
-                  
                   <DateRangePicker
                     startDate={startDate}
                     startDateId="startDate"
@@ -251,7 +239,6 @@ function App() {
                     required
                     isOutsideRange={() => false}
                     noBorder={true}
-                    
                   />
                 </Form.Field>
 
@@ -281,29 +268,19 @@ function App() {
               </Segment>
               
               <Header as="h2" className="sectionHeader metric">Metric Selection</Header>
-              <Button type="button" className="addButton" floated="right" onClick={(event, data) => {
-                      if(metricQuery.length ===5 ){
-                        return;
-                      }
-                      const newMetricQuery = [];
-                      for(var i = 0; i<metricQuery.length; i++) {
-                        newMetricQuery.push(metricQuery[i]);
-                      }
-                      newMetricQuery.push({
-                        "metricCode": metrics,
-                        "compareType": measures,
-                        "value": parseFloat(compareValue)
-                      });
-                      setMetricQuery(newMetricQuery);
-                      }}
-                    >
-                      ADD CRITERIA
-                    </Button>
-              {metricQuery.map((criteria, index) => {
+              
+              {metricQuery.length !== 5 ?
+                <Button type="button" className="addButton" floated="right" onClick={(event, data) => onAddCriteria()}>
+                  ADD CRITERIA
+                </Button> :
+                <></>
+              }
+              
+
+              {metricQuery.map((criteria, index) => {  //add criteria components
                 return <Segment key={index} className="formSegment">
                         <Grid columns={2} stackable>
                           <Grid.Row verticalAlign='top'>
-                            
                               <Grid.Column>
                                 <Form.Field>
                                   <Header as='h3'>Metric</Header>
@@ -311,11 +288,10 @@ function App() {
                                       options={metricOptions}
                                       selection
                                       placeholder="Select"
+                                      value={criteria.metricCode}
                                       onChange={(event, data) => updateQuery(data.value, index, "metricCode")}
-                                    >
-                                    </Dropdown>
+                                    />
                                 </Form.Field>
-                    
                                 <Form.Field>
                                   <Header as='h3'>Compare Type</Header>
                                   <Checkbox
@@ -359,7 +335,6 @@ function App() {
                                     onChange={(event, data) => updateQuery(data.value, index, "compareType")}
                                   />              
                                 </Form.Field>
-
                                 <Form.Field>
                                   <Header as='h3'>Value</Header>
                                   <Input 
@@ -370,33 +345,33 @@ function App() {
                                     onChange={(event, data) => updateQuery(parseFloat(data.value), index, "value")}
                                     required
                                     className='valueInput'
-                                  >
-                                  </Input>
+                                  />
                                 </Form.Field>
                               </Grid.Column>
-                              
-                              {checkLength(index)}
-                              
-                            </Grid.Row>
+
+                              {metricQuery.length !== 1 ?
+                                <Grid.Column>
+                                  <Button icon type="button" className="deleteButton" floated="right" onClick={(event, data) => deleteQuery(index)}>
+                                    <Icon name="delete" />
+                                  </Button>
+                                </Grid.Column> :
+                                <></>
+                              }
+                          </Grid.Row>
                         </Grid>
                      </Segment>;
               })}
               
-
-              <Form.Field>
-                  
-                </Form.Field>
               <Form.Field className='submitField'>
-                <Button type="submit" >SEARCH</Button>
+                <Button type="submit">SEARCH</Button>
               </Form.Field>
             </Form>
           </Grid.Column>
         </Grid.Row>
         
         {isSubmitted ? getResultsTable() : <></>}
-      
       </Grid>
-      
+
     </div>
   );
 }
