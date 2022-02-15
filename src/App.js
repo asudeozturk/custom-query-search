@@ -196,15 +196,15 @@ function App() {
              <ResponsiveContainer width="100%" height={800}>
               <LineChart
                   margin={{
-                    top: 30,
-                    right: 30,
-                    left: 30,
-                    bottom: 30,
+                    top: 35,
+                    right: 35,
+                    left: 35,
+                    bottom: 35,
                   }}
                   data={dailyAverages}
                 > 
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" angle={90} dy={30} dx={5}/>
+                  <XAxis dataKey="date" angle={90} dy={35} dx={5}/>
                   <YAxis />
                   <Tooltip />
                   <Legend verticalAlign="top" 
