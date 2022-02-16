@@ -1,7 +1,7 @@
 
 import './App.css';
 import 'semantic-ui-css/semantic.min.css';
-import { Grid, Form, Dropdown, Header, Label, Checkbox, Button, Input, GridColumn, Table, TableHeaderCell, Pagination, TableHeader, Segment, Icon} from 'semantic-ui-react';
+import { Grid, Form, Dropdown, Header, Label, Checkbox, Button, Input, GridColumn, Table, TableHeaderCell, Pagination, TableHeader, Segment, Icon, Ref} from 'semantic-ui-react';
 import {
   LineChart,
   Line,
@@ -30,7 +30,7 @@ function App() {
     "compareType": "LessThan",
     "value": 0
   };
-  
+  const scrollToResults = React.useRef(null);
 
   const [restaurantIds, setRestaurantIds] = useState([]);
   const [startDate, setStartDate] = useState(null);
@@ -64,7 +64,8 @@ function App() {
         console.log(data);
         setResults(data); //receive results from API
         setSubmitted(true); //used for showing the table when form is submitted
-    })
+        scrollToResults.current.scrollIntoView();
+      })
     .catch(err => {
       console.log(err);
     });
@@ -204,7 +205,7 @@ function App() {
                   data={dailyAverages}
                 > 
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" angle={90} dy={35} dx={5}/>
+                  <XAxis dataKey="date" angle={90} dy={35} dx={5} interval={0}/>
                   <YAxis/>
                   <Tooltip />
                   <Legend verticalAlign="top" 
@@ -234,15 +235,17 @@ function App() {
   function getResultsTable() {
     return <Grid.Row>
               <GridColumn className="resultsSection">
-                <Header as="h2" className="sectionTitle">Results</Header>
-              
+                <Ref innerRef={scrollToResults}>
+                  <Header as="h2" className="sectionTitle">Results</Header>
+                </Ref>
                 <Segment className='resultHeaderSegment'>
                   <Segment className='criteriaSegment'>
                     {metricQuery.map((metric, index) => {
-                    return <p className="criteria">
-                            {metricDefinitions.find(x => x.metricCode === metric.metricCode).alias} 
-                            {getCompareType(metric.compareType)} {metric.value} 
-                          </p>;})
+                      return <p className="criteria">
+                              {metricDefinitions.find(x =>  x.metricCode === metric.metricCode).alias} 
+                              {getCompareType(metric.compareType)} {metric.value} 
+                            </p>;
+                        })
                     }
                   </Segment>
                   <Pagination
@@ -480,7 +483,9 @@ function App() {
               })}
               
               <Form.Field className='submitField'>
-                <Button type="submit">SEARCH</Button>
+                <Ref>
+                  <Button type="submit">SEARCH</Button>
+                </Ref>
               </Form.Field>
             </Form>
           </Grid.Column>

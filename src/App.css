@@ -65,7 +65,8 @@ html body{
   text-align: center;
 }
 .App .ui.label.toTimeLabel {
-  margin-left: 6%;
+  margin-left: 7%;
+  width: 50px;
 }
 
 .App .ui.radio.checkbox{
@@ -77,15 +78,15 @@ html body{
 }
 
 .App .column.resultsSection {
-  
+  height: 100%;
   background-color: #fdfdfd;
-  padding: 20px;
+  padding: 15px 10px 10px 10px;
 }
 
 .App .ui.table thead tr th {
   background-color:#f1795a;
   color: white;
-  font-size: 18px;
+  
  
 }
 .App .ui.form .field>.selection.dropdown{
@@ -136,7 +137,7 @@ html body{
 .App .ui.grid>.row .resultsSection{
   padding-left: 1rem;
   margin-left: 40px;
-  margin-right: 40px;
+  margin-right: 30px;
   overflow-y: auto;
 }
 
@@ -157,4 +158,8 @@ html body{
 
 .App .ui.header.sectionTitle  {
   text-align: center;
+}
+
+.App .rc-time-picker {
+  width: 19%;
 }
