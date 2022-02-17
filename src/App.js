@@ -84,15 +84,20 @@ function App() {
     setEndDate(endDate);
   };
   const onStartTimeChange = value => {
-    setStartTime(parseInt(value.format('H')));
-    
+    var time = parseInt(value.format('H'));
+    setStartTime(time);
+    if(time < (endTime-24)){
+      setEndTime(endTime-24); 
+    }
+    else if(time > (endTime)){
+      setEndTime(endTime+24);
+    }
   };
   const onEndTimeChange = value => {
     var time = parseInt(value.format('H'));
     if(time < startTime) { //next day
         time += 24;
     }
-    console.log(time);
     setEndTime(time);
   };
   function updateQuery(value, index, attribute) {
@@ -117,6 +122,7 @@ function App() {
     getColumns(activePage);
   }
   function onAddCriteria() {
+    setSubmitted(false);
     const newMetricQuery = [];
     for(var i = 0; i<metricQuery.length; i++) {
       newMetricQuery.push(metricQuery[i]);
@@ -165,7 +171,10 @@ function App() {
       for(var j =0; j < resultOnDate.length; j++) {
         sum += parseFloat(resultOnDate[j][key]);
       }
-      const average = (sum/resultOnDate.length).toFixed(2);
+      const type = metricDefinitions.find(x =>  x.metricCode === metric).dataType;
+      
+      //if metric type is number, round down to nearest integer
+      const average = type==="Number" ? Math.floor(sum/resultOnDate.length) :  (sum/resultOnDate.length).toFixed(2);
       date[metric] = average;
     }
     return date;
@@ -197,8 +206,8 @@ function App() {
              <ResponsiveContainer height={600} width="100%">
               <LineChart
                   margin={{
-                    top: 20,
-                    right: 20,
+                    top: 10,
+                    right: 30,
                     left: 0,
                     bottom: 50,
                   }}
