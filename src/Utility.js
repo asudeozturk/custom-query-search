@@ -1,4 +1,3 @@
-
 export const restaurantOptions = [
     {
         key: 1,
@@ -51,6 +50,33 @@ export const restaurantOptions = [
         text: "Restaurant 10"
     }
 ]
+export const compareTypeOptions = [
+    {
+        key: 1,
+        value: "LessThan",
+        text: "<"
+    },
+    {
+        key: 2,
+        value: "LessThanOrEqual",
+        text: "<="
+    },
+    {
+        key: 3,
+        value: "Equal",
+        text: "="
+    },
+    {
+        key: 4,
+        value: "GreaterThanOrEqual",
+        text: ">="
+    },
+    {
+        key: 5,
+        value: "GreaterThan",
+        text: ">"
+    },
+]
 
 export async function getData(url="") {
     const response = await fetch(url, {
@@ -75,24 +101,6 @@ export async function postData(url="", data={}) {
     }
     else {
         throw response.json();
-    }
-}
-
-export function getCompareType(type){
-    if(type=== "LessThan") {
-        return "<";
-    }
-    else if(type=== "LessThanOrEqual") {
-        return "<="
-    }
-    else if(type=== "Equal") {
-        return "="
-    }
-    else if(type=== "GreaterThanOrEqual") {
-        return ">="
-    }
-    else {
-        return ">"
     }
 }
 

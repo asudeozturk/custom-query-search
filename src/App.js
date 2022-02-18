@@ -4,7 +4,7 @@ import 'semantic-ui-css/semantic.min.css';
 import 'react-dates/initialize';
 import 'react-dates/lib/css/_datepicker.css';
 import 'rc-time-picker/assets/index.css';
-import { restaurantOptions, getData, postData, getCompareType, getColor} from './Utility';
+import { restaurantOptions, getData, postData, getColor, compareTypeOptions} from './Utility';
 import { Grid, GridColumn, Segment, Ref, Header, Label} from 'semantic-ui-react';
 import { Form, Dropdown, Checkbox, Input,Button, Icon} from 'semantic-ui-react';
 import { Table, TableHeader, TableHeaderCell, Pagination } from 'semantic-ui-react';
@@ -235,8 +235,9 @@ function App() {
                   <Segment className='criteriaSegment'>
                     {metricQuery.map((metric, index) => { //shows all criteria in single line, above the table
                       return <p className="criteria">
-                              {metricDefinitions.find(x =>  x.metricCode === metric.metricCode).alias} 
-                              {getCompareType(metric.compareType)} {metric.value} 
+                              {metricDefinitions.find(x =>  x.metricCode === metric.metricCode).alias}
+                              {compareTypeOptions.find(x => x.value === metric.compareType).text} 
+                              {metric.value} 
                             </p>;
                         })
                     }
@@ -399,46 +400,17 @@ function App() {
                                 </Form.Field>
                                 <Form.Field>
                                   <Header as='h3'>Compare Type</Header>
-                                  <Checkbox
-                                    radio
-                                    label='<'
-                                    name='measureGroup'
-                                    value='LessThan'
-                                    checked={criteria.compareType === 'LessThan'}
-                                    onChange={(event, data) => onUpdateCriteria(data.value, index, "compareType")}
-                                  />
-                                  <Checkbox
-                                    radio
-                                    label='<='
-                                    name='measureGroup'
-                                    value='LessThanOrEqual'
-                                    checked={criteria.compareType === 'LessThanOrEqual'}
-                                    onChange={(event, data) => onUpdateCriteria(data.value, index, "compareType")}
-                                  />
-                                  <Checkbox
-                                    radio
-                                    label='='
-                                    name='measureGroup'
-                                    value='Equal'
-                                    checked={criteria.compareType === 'Equal'}
-                                    onChange={(event, data) => onUpdateCriteria(data.value, index, "compareType")}
-                                  />
-                                  <Checkbox
-                                    radio
-                                    label='>='
-                                    name='measureGroup'
-                                    value='GreaterThanOrEqual'
-                                    checked={criteria.compareType === 'GreaterThanOrEqual'}
-                                    onChange={(event, data) => onUpdateCriteria(data.value, index, "compareType")}
-                                  />
-                                  <Checkbox
-                                    radio
-                                    label='>'
-                                    name='measureGroup'
-                                    value='GreaterThan'
-                                    checked={criteria.compareType === 'GreaterThan'}
-                                    onChange={(event, data) => onUpdateCriteria(data.value, index, "compareType")}
-                                  />              
+                                  {compareTypeOptions.map(type => {//Add Compare Type radio buttons
+                                    return  <Checkbox
+                                              radio
+                                              label={type.text}
+                                              name='measureGroup'
+                                              value={type.value}
+                                              checked={criteria.compareType === type.value}
+                                              onChange={(event, data) => onUpdateCriteria(data.value, index, "compareType")}
+                                            />;
+                                  })}
+                                  
                                 </Form.Field>
                                 <Form.Field>
                                   <Header as='h3'>Value</Header>
