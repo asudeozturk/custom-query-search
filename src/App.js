@@ -1,26 +1,17 @@
 
 import './App.css';
 import 'semantic-ui-css/semantic.min.css';
-import { Grid, Form, Dropdown, Header, Label, Checkbox, Button, Input, GridColumn, Table, TableHeaderCell, Pagination, TableHeader, Segment, Icon, Ref} from 'semantic-ui-react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer
-} from "recharts";
-import React, {useEffect, useState, PureComponent} from "react"; 
-import { restaurantOptions, getData, postData, getCompareType, getColor} from './Utility';
-
 import 'react-dates/initialize';
-import {DateRangePicker} from 'react-dates';
 import 'react-dates/lib/css/_datepicker.css';
-
-import TimePicker from 'rc-time-picker';
 import 'rc-time-picker/assets/index.css';
+import { restaurantOptions, getData, postData, getCompareType, getColor} from './Utility';
+import { Grid, GridColumn, Segment, Ref, Header, Label} from 'semantic-ui-react';
+import { Form, Dropdown, Checkbox, Input,Button, Icon} from 'semantic-ui-react';
+import { Table, TableHeader, TableHeaderCell, Pagination } from 'semantic-ui-react';
+import { LineChart,Line, XAxis, YAxis, CartesianGrid,Tooltip,Legend,ResponsiveContainer} from "recharts";
+import React, {useEffect, useState, PureComponent} from "react"; 
+import {DateRangePicker} from 'react-dates';
+import TimePicker from 'rc-time-picker';
 import moment from 'moment';
 
 function App() {
@@ -33,20 +24,88 @@ function App() {
   const scrollToResults = React.useRef(null);
 
   const [restaurantIds, setRestaurantIds] = useState([]);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(null); //Moment object
+  const [endDate, setEndDate] = useState(null); //Moment object
   const [focusedInput, setFocusedInput] = useState(null);
-  const [startTime, setStartTime] = useState(6);
+  const [startTime, setStartTime] = useState(6); //6am
   const [endTime, setEndTime] = useState(29); //5am next day
 
   const [metricDefinitions, setMetricDefinitions] = useState([]);
-  const [isSubmitted, setSubmitted] = useState(false);
-  const [metricQuery, setMetricQuery] = useState([defaultCriteria]);
-  const [results, setResults] = useState([]);
-  const [activePage, setActivePage] = useState(1);
+  const [isSubmitted, setSubmitted] = useState(false); //if true, shows results 
+  const [metricQuery, setMetricQuery] = useState([defaultCriteria]); //criteria
+  const [results, setResults] = useState([]);       //results from API
+  const [activePage, setActivePage] = useState(1);  //pagination
 
+  const metricOptions = metricDefinitions.map((metric, index) => {
+    return {
+      key: index,
+      text: metric.alias,
+      value: metric.metricCode
+    }
+  });
 
+  useEffect(() => { //load metric definitions from API
+    getData("https://customsearchquerytoolapi.azurewebsites.net/Search/MetricDefinitions")
+    .then(data=>{
+        setMetricDefinitions(data);
+    })
+    .catch(err => {
+      console.log("Error");
+    });
+    
+  }, []);
+ 
+  const onDatesChange = ({ startDate, endDate }) => {
+    setStartDate(startDate);
+    setEndDate(endDate);
+  };
+  const onStartTimeChange = value => {
+    var time = parseInt(value.format('H'));
+    setStartTime(time);
+    if(time < (endTime-24)){ //update endTime when startTime changes
+      setEndTime(endTime-24); 
+    }
+    else if(time > (endTime)){
+      setEndTime(endTime+24);
+    }
+  };
+  const onEndTimeChange = value => {
+    var time = parseInt(value.format('H'));
+    if(time < startTime) { //next day
+        time += 24;
+    }
+    setEndTime(time);
+  };
 
+  function onUpdateCriteria(value, index, attribute) {
+    const newMetricQuery = [];
+    for(var i = 0; i<metricQuery.length; i++) {
+      newMetricQuery.push(metricQuery[i]);
+    }
+    newMetricQuery[index][attribute] = value;
+    setMetricQuery(newMetricQuery);
+  }
+  function onAddCriteria() { //when add criteria button clicked
+    setSubmitted(false); 
+    const newMetricQuery = [];
+    for(var i = 0; i<metricQuery.length; i++) {
+      newMetricQuery.push(metricQuery[i]);
+    }
+    newMetricQuery.push(defaultCriteria);
+    setMetricQuery(newMetricQuery);
+  }
+  function onDeleteCriteria(index) { //when delete criteria button clicked
+    const newMetricQuery = [];
+    for(var i = 0; i<metricQuery.length; i++) {
+      newMetricQuery.push(metricQuery[i]);
+    }
+    newMetricQuery.splice(index,1);
+    setMetricQuery(newMetricQuery);
+  }
+  function onPaginationChange(activePage) {
+    setActivePage(activePage);
+    getColumns(activePage); //show results on the table
+  }
   function onSubmit() {
     const queryRequest = {
       restaurantIds: restaurantIds,
@@ -72,144 +131,20 @@ function App() {
     
   }
 
-  const metricOptions = metricDefinitions.map((metric, index) => {
-    return {
-      key: index,
-      text: metric.alias,
-      value: metric.metricCode
-    }
-  });
-  const onDatesChange = ({ startDate, endDate }) => {
-    setStartDate(startDate);
-    setEndDate(endDate);
-  };
-  const onStartTimeChange = value => {
-    var time = parseInt(value.format('H'));
-    setStartTime(time);
-    if(time < (endTime-24)){
-      setEndTime(endTime-24); 
-    }
-    else if(time > (endTime)){
-      setEndTime(endTime+24);
-    }
-  };
-  const onEndTimeChange = value => {
-    var time = parseInt(value.format('H'));
-    if(time < startTime) { //next day
-        time += 24;
-    }
-    setEndTime(time);
-  };
-  function updateQuery(value, index, attribute) {
-    const newMetricQuery = [];
-    for(var i = 0; i<metricQuery.length; i++) {
-      newMetricQuery.push(metricQuery[i]);
-    }
-    newMetricQuery[index][attribute] = value;
-    setMetricQuery(newMetricQuery);
-  }
-  function deleteQuery(index) {
-    const newMetricQuery = [];
-    for(var i = 0; i<metricQuery.length; i++) {
-      newMetricQuery.push(metricQuery[i]);
-    }
-    newMetricQuery.splice(index,1);
-    setMetricQuery(newMetricQuery);
-  }
-
-  function onPaginationChange(activePage) {
-    setActivePage(activePage);
-    getColumns(activePage);
-  }
-  function onAddCriteria() {
-    setSubmitted(false);
-    const newMetricQuery = [];
-    for(var i = 0; i<metricQuery.length; i++) {
-      newMetricQuery.push(metricQuery[i]);
-    }
-    newMetricQuery.push(defaultCriteria);
-    setMetricQuery(newMetricQuery);
-  }
-
-  useEffect(() => {
-    getData("https://customsearchquerytoolapi.azurewebsites.net/Search/MetricDefinitions")
-    .then(data=>{
-        setMetricDefinitions(data);
-    })
-    .catch(err => {
-      console.log("Error");
-    });
-    
-  }, []);
-
   
-  function getAverages() {
-    const averages =[];
-    var date = moment(startDate);
-
-    while(date.isSameOrBefore(endDate)) {
-      
-      averages.push(calculateAverages(date));
-      date.add(1,'days');
-    }
-    return averages;
-  }
-
-  
-  function calculateAverages(date) {
-    const dateString = date.format("YYYY-MM-DDT00:mm:ss");
-    const resultOnDate = results.filter((result) => result.busDt === dateString);
-    date = {
-      "date": date.format("MM/DD/YYYY")
-    };
-   
-    for(var i=0; i<metricQuery.length;i++){
-      var metric = metricQuery[i].metricCode;
-      var key = metric.charAt(0).toLowerCase() + metric.slice(1);
-      var sum = 0;
-
-      for(var j =0; j < resultOnDate.length; j++) {
-        sum += parseFloat(resultOnDate[j][key]);
-      }
-      const type = metricDefinitions.find(x =>  x.metricCode === metric).dataType;
-      
-      //if metric type is number, round down to nearest integer
-      const average = type==="Number" ? Math.floor(sum/resultOnDate.length) :  (sum/resultOnDate.length).toFixed(2);
-      date[metric] = average;
-    }
-    return date;
-  }
-
-  class CustomizedLabel extends PureComponent {
-    render() {
-      const { x, y, stroke, value } = this.props;
-      
-      return (
-        <text x={x} y={y} dy={-4} fill={stroke} fontSize={18} textAnchor="middle">
-          {value}
-        </text>
-      );
-    }
-  }
-
-  const renderLabel = (value, entry) => {
-    const { color } = entry;
-    const label = metricDefinitions.find(x => x.metricCode === value).alias;
-    return <span style={{ color }}>{label}</span>;
-  };
  
-  function getResultsGraph() {
+  function getResultsGraph() { //create line chart
     const dailyAverages = getAverages();
     return <Grid.Row>
             <GridColumn className="resultsSection">
              <Header as="h2" className="sectionTitle">Daily Average Values by Metric</Header>
-             <ResponsiveContainer height={600} width="100%">
-              <LineChart
+              <ResponsiveContainer height={600} width="100%">
+                <LineChart 
                   margin={{
-                    top: 10,
-                    right: 30,
-                    left: 0,
-                    bottom: 50,
+                  top: 10,
+                  right: 30,
+                  left: 0,
+                  bottom: 50,
                   }}
                   data={dailyAverages}
                 > 
@@ -218,30 +153,79 @@ function App() {
                   <YAxis/>
                   <Tooltip />
                   <Legend verticalAlign="top" 
-                          height={36} 
-                          iconSize={20} 
-                          iconType="square"
-                          formatter={renderLabel}
+                    height={36} 
+                    iconSize={20} 
+                    iconType="square"
+                    formatter={renderLabel}
                   />
-                  {metricQuery.map((metric, index) => {
+                  {metricQuery.map((metric, index) => { //get Line for each metric
                     var key = metric.metricCode;
-                    
                     return <Line type="monotone"  
-                                  strokeWidth={3} 
-                                  dataKey={key}
-                                  connectNulls 
-                                  label={<CustomizedLabel />}
-                                  stroke={getColor(index)}
+                              strokeWidth={3} 
+                              dataKey={key}
+                              connectNulls 
+                              label={<CustomizedLabel />}
+                              stroke={getColor(index)}
                           />;
                   })}
-                
                 </LineChart>
               </ResponsiveContainer>
             </GridColumn>
           </Grid.Row>
   }
 
-  function getResultsTable() {
+  function getAverages() { //for line chart: put metric averages of each day in array
+    const averages =[];
+    var date = moment(startDate);
+    while(date.isSameOrBefore(endDate)) { 
+      averages.push(calculateAverages(date));
+      date.add(1,'days');
+    }
+    return averages;
+  }
+  function calculateAverages(date) { //for line chart: find averages for the given day
+    const dateString = date.format("YYYY-MM-DDT00:mm:ss");
+
+    const resultOnDate = results.filter((result) => result.busDt === dateString);
+    date = {
+      "date": date.format("MM/DD/YYYY")
+    };
+   
+    for(var i=0; i<metricQuery.length;i++){ //for each metric, calculate its average, add result to date object
+      var metric = metricQuery[i].metricCode;
+      var key = metric.charAt(0).toLowerCase() + metric.slice(1);
+      
+      var sum = 0;
+      for(var j =0; j < resultOnDate.length; j++) {
+        sum += parseFloat(resultOnDate[j][key]);
+      }
+      const type = metricDefinitions.find(x =>  x.metricCode === metric).dataType;
+      
+      //if metric type is quantity, round down to nearest integer
+      const average = type==="Number" ? Math.floor(sum/resultOnDate.length) :  
+                                        (sum/resultOnDate.length).toFixed(2);
+      date[metric] = average; //new property
+    }
+    return date;
+  }
+
+  class CustomizedLabel extends PureComponent { //for line chart: customize labels of line chart
+    render() {
+      const { x, y, stroke, value } = this.props;
+      return (
+        <text x={x} y={y} dy={-4} fill={stroke} fontSize={18} textAnchor="middle">
+          {value}
+        </text>
+      );
+    }
+  }
+  const renderLabel = (value, entry) => { //for line chart: show metric alias instead of metricCode
+    const { color } = entry;
+    const label = metricDefinitions.find(x => x.metricCode === value).alias;
+    return <span style={{ color }}>{label}</span>;
+  };
+
+  function getResultsTable() { //create table
     return <Grid.Row>
               <GridColumn className="resultsSection">
                 <Ref innerRef={scrollToResults}>
@@ -249,7 +233,7 @@ function App() {
                 </Ref>
                 <Segment className='resultHeaderSegment'>
                   <Segment className='criteriaSegment'>
-                    {metricQuery.map((metric, index) => {
+                    {metricQuery.map((metric, index) => { //shows all criteria in single line, above the table
                       return <p className="criteria">
                               {metricDefinitions.find(x =>  x.metricCode === metric.metricCode).alias} 
                               {getCompareType(metric.compareType)} {metric.value} 
@@ -258,33 +242,33 @@ function App() {
                     }
                   </Segment>
                   <Pagination
-                  activePage={activePage}
-                  onPageChange={(event,data)=>onPaginationChange(data.activePage)}
-                  totalPages={Math.ceil(results.length/rowPerPage)}
-                />
+                    activePage={activePage}
+                    onPageChange={(event,data)=>onPaginationChange(data.activePage)}
+                    totalPages={Math.ceil(results.length/rowPerPage)}
+                  />
                 </Segment>
                 
                 <Table celled collapsing >
                   {getColumns()}
                   {getRows(activePage)}
                 </Table>
-            </GridColumn>
+              </GridColumn>
           </Grid.Row>
   }
-  function getColumns() { //add column names
+  function getColumns() { //for table: add column names
     return <TableHeader>
             <Table.Row>
               <TableHeaderCell>Restaurant Id</TableHeaderCell>
               <TableHeaderCell>Transaction Date</TableHeaderCell>
               <TableHeaderCell>Transaction Time</TableHeaderCell>
               <TableHeaderCell>Ticket Number</TableHeaderCell>
-              { metricDefinitions.map((metric) => {
+              {metricDefinitions.map((metric) => {
                 return <TableHeaderCell>{metric.alias}</TableHeaderCell>;
               })}
             </Table.Row>
           </TableHeader>;
   }
-  function getRows(activePage) { //add rows for data
+  function getRows(activePage) { //for table: fill rows with data
     return <Table.Body>
               {results.slice((activePage-1)*rowPerPage, (activePage-1)*rowPerPage + rowPerPage).map((result) => { //get results based on activePage
                 return <Table.Row>
@@ -299,22 +283,15 @@ function App() {
                             return <Table.Cell>{formatData(metricDef,result[key])}</Table.Cell>;
                         })}
                       </Table.Row>;
-                })
-              }
+              })}
             </Table.Body>;
   }
 
   function formatDate(date) {
-    var m = moment(date);
-    var newFormat = m.format('MM/DD/YYYY');
-
-    return newFormat;
+    return moment(date).format('MM/DD/YYYY');
   }
   function formatTime(time) {
-    var m = moment(time);
-    var newFormat = m.format('h:mm A');
-
-    return newFormat;
+    return moment(time).format('h:mm A');
   }
   function formatData(metricDef, data){
     const type = metricDef.dataType;
@@ -386,26 +363,25 @@ function App() {
                     inputReadOnly
                     showSecond={false}
                     showMinute={false}
-                    defaultValue={moment().hour(5)}
+                    defaultValue={moment().hour(29)}
                     onChange={onEndTimeChange}
                   />
-                  { endTime>24 ? 
-                    <p className="nextDay">* {endTime-24}a.m. next day</p>:
-                    <></>
+                  { endTime>24 ? //warning message if endTime is next day
+                    <p className="nextDay">* {endTime-24}a.m. next day</p>: <></>
                   }
                 </Form.Field>
               </Segment>
               
               <Header as="h2" className="sectionHeader metric">Metric Selection</Header>
               
-              {metricQuery.length !== 5 ?
+              {metricQuery.length !== 5 ? //add Add Criteria button
                 <Button type="button" className="addButton" floated="right" onClick={(event, data) => onAddCriteria()}>
                   ADD CRITERIA
                 </Button> :
                 <></>
               }
               
-              {metricQuery.map((criteria, index) => {  //add criteria components
+              {metricQuery.map((criteria, index) => {  //add components for criteria
                 return <Segment key={index} className="formSegment">
                         <Grid columns={2} stackable>
                           <Grid.Row verticalAlign='top'>
@@ -418,7 +394,7 @@ function App() {
                                       placeholder="Select"
                                       className="metricInputs"
                                       value={criteria.metricCode}
-                                      onChange={(event, data) => updateQuery(data.value, index, "metricCode")}
+                                      onChange={(event, data) => onUpdateCriteria(data.value, index, "metricCode")}
                                     />
                                 </Form.Field>
                                 <Form.Field>
@@ -429,7 +405,7 @@ function App() {
                                     name='measureGroup'
                                     value='LessThan'
                                     checked={criteria.compareType === 'LessThan'}
-                                    onChange={(event, data) => updateQuery(data.value, index, "compareType")}
+                                    onChange={(event, data) => onUpdateCriteria(data.value, index, "compareType")}
                                   />
                                   <Checkbox
                                     radio
@@ -437,7 +413,7 @@ function App() {
                                     name='measureGroup'
                                     value='LessThanOrEqual'
                                     checked={criteria.compareType === 'LessThanOrEqual'}
-                                    onChange={(event, data) => updateQuery(data.value, index, "compareType")}
+                                    onChange={(event, data) => onUpdateCriteria(data.value, index, "compareType")}
                                   />
                                   <Checkbox
                                     radio
@@ -445,7 +421,7 @@ function App() {
                                     name='measureGroup'
                                     value='Equal'
                                     checked={criteria.compareType === 'Equal'}
-                                    onChange={(event, data) => updateQuery(data.value, index, "compareType")}
+                                    onChange={(event, data) => onUpdateCriteria(data.value, index, "compareType")}
                                   />
                                   <Checkbox
                                     radio
@@ -453,7 +429,7 @@ function App() {
                                     name='measureGroup'
                                     value='GreaterThanOrEqual'
                                     checked={criteria.compareType === 'GreaterThanOrEqual'}
-                                    onChange={(event, data) => updateQuery(data.value, index, "compareType")}
+                                    onChange={(event, data) => onUpdateCriteria(data.value, index, "compareType")}
                                   />
                                   <Checkbox
                                     radio
@@ -461,7 +437,7 @@ function App() {
                                     name='measureGroup'
                                     value='GreaterThan'
                                     checked={criteria.compareType === 'GreaterThan'}
-                                    onChange={(event, data) => updateQuery(data.value, index, "compareType")}
+                                    onChange={(event, data) => onUpdateCriteria(data.value, index, "compareType")}
                                   />              
                                 </Form.Field>
                                 <Form.Field>
@@ -471,16 +447,16 @@ function App() {
                                     placeholder='0'
                                     step='any'
                                     value={criteria.value}
-                                    onChange={(event, data) => updateQuery(parseFloat(data.value), index, "value")}
+                                    onChange={(event, data) => onUpdateCriteria(parseFloat(data.value), index, "value")}
                                     required
                                     className="metricInputs"
                                   />
                                 </Form.Field>
                               </Grid.Column>
 
-                              {metricQuery.length !== 1 ?
+                              {metricQuery.length !== 1 ? //add Delete Criteria button
                                 <Grid.Column>
-                                  <Button icon type="button" className="deleteButton" floated="right" onClick={(event, data) => deleteQuery(index)}>
+                                  <Button icon type="button" className="deleteButton" floated="right" onClick={(event, data) => onDeleteCriteria(index)}>
                                     <Icon name="delete" />
                                   </Button>
                                 </Grid.Column> :
