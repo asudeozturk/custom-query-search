@@ -16,6 +16,7 @@ import moment from 'moment';
 
 function App() {
   const rowPerPage = 10;
+  const defaultStartTime = 6, defaultEndTime = 29; //6am and 5am(next day)
   const defaultCriteria = {
     "metricCode": "",
     "compareType": "LessThan",
@@ -27,8 +28,8 @@ function App() {
   const [startDate, setStartDate] = useState(null); //Moment object
   const [endDate, setEndDate] = useState(null); //Moment object
   const [focusedInput, setFocusedInput] = useState(null);
-  const [startTime, setStartTime] = useState(6); //6am
-  const [endTime, setEndTime] = useState(29); //5am next day
+  const [startTime, setStartTime] = useState(defaultStartTime); //6am
+  const [endTime, setEndTime] = useState(defaultEndTime); //5am next day
 
   const [metricDefinitions, setMetricDefinitions] = useState([]);
   const [isSubmitted, setSubmitted] = useState(false); //if true, shows results 
@@ -131,8 +132,6 @@ function App() {
     
   }
 
-  
- 
   function getResultsGraph() { //create line chart
     const dailyAverages = getAverages();
     return <Grid.Row>
@@ -354,7 +353,7 @@ function App() {
                     inputReadOnly
                     showSecond={false}
                     showMinute={false}
-                    defaultValue={moment().hour(6)}
+                    defaultValue={moment().hour(defaultStartTime)}
                     onChange={onStartTimeChange} 
                   />
                   <Label className="toTimeLabel">To</Label>
@@ -364,7 +363,7 @@ function App() {
                     inputReadOnly
                     showSecond={false}
                     showMinute={false}
-                    defaultValue={moment().hour(29)}
+                    defaultValue={moment().hour(defaultEndTime)}
                     onChange={onEndTimeChange}
                   />
                   { endTime>24 ? //warning message if endTime is next day
