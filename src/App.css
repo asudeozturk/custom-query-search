@@ -3,171 +3,153 @@ html body{
   background-color: #f3f5f9;
 }
 
-.App .ui.segment.formSegment {
-  background-color: #fdfdfd;
-  border-radius: 19px;
-  margin-top: 10px;
-
-}
-.App .ui.segment.resultHeaderSegment {
-  border: 0 none;
-  box-shadow: none;
-  padding: 0;
-  margin: 10px 0;
-  display: grid;
-  grid-template-columns: repeat(2, auto);
-  align-items: end;
-  gap: 10px;
-}
-.App .ui.segment.criteriaSegment {
-  border: 0 none;
-  box-shadow: none;
-  padding: 0;
-  margin: 0;
-}
-.App .ui.pagination {
-  justify-self: end;
-}
-
-.App .ui.form {
-  margin: 20px auto;
-  width: 55%;
-}
-
+/*Header Styles*/
 .App .ui.header {
   color: #0e8fab;
 }
-.App .ui.header.sectionHeader{
-  color: #666666;
-  margin-bottom: 0px;
-  margin-left: 12px;
-}
-.App .ui.header.title{
-  font-weight: bold;
+.App .ui.header.mainTitle{
   text-align: center;
-  margin-top: 20px;
+  margin: 20px 0;
+}
+.App .ui.header.sectionTitle{
+  color: #666666;
+  margin: 0 0 0 12px;
+}
+.App .ui.header.sectionTitle.metricTitle{
+  display: inline;
+}
+.App .ui.header.resultTitle  {
+  text-align: center;
+}
+.App h3.ui.header { /*form headers*/
+  margin: 0 0 2px 0;
 }
 
-.App .ui.button[type="submit"] {
-  background-color:#f1795a;
-  color: white;
-  width: 25%;
-  
-}
-
-.App .DateRangePicker {
-  display: block;
-}
-
+/*Label Styles*/
 .App .ui.label{
   vertical-align: bottom;
   text-align: center;
 }
 .App .ui.label.toTimeLabel {
-  margin-left: 7%;
+  margin-left: 6%;
   width: 50px;
-}
-
-.App .ui.radio.checkbox{
-  margin-right: 18px;
-  font-size: 20px;
 }
 .App .ui.radio.checkbox label {
   padding-left: 20px;
 }
 
-.App .column.resultsSection {
-  height: 100%;
-  background-color: #fdfdfd;
-  padding: 15px 10px 10px 10px;
+/*Paragraph Styles*/
+.App p.criteria {
+  font-size: 18px;
+  background-color: #f3f5f9;
+  border-radius: 5px;
+  padding: 10px;
+  margin-right: 10px;
+  display: inline-block;
 }
-
-.App .ui.table thead tr th {
-  background-color:#f1795a;
-  color: white;
-  
- 
-}
-.App .ui.form .field>.selection.dropdown{
- width: 58%;
-}
-.App .ui.form .field>.selection.dropdown.metricInputs{
-  width: 100%;
-}
-
-.App .ui.header.sectionHeader.metric{
+.App p.nextDay {
   display: inline;
-  
+  margin-left: 5px;
+  color:#666666;
 }
 
+/*Grid Styles*/
+.App .column.resultsSection {
+  background-color: #fdfdfd;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  margin-left: 40px;
+  margin-right: 30px;
+  overflow-y: auto;
+}
+
+/*Segment Styles*/
+.App .ui.segment.formSegment {
+  background-color: #fdfdfd;
+  border-radius: 10px;
+  margin: 10px 0 12px 0;
+}
+.App .ui.segment.resultHeaderSegment {
+  border: 0 none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0 0 10px 0;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  align-items: end;
+}
+.App .ui.segment.resultCriteriaSegment {
+  border: 0 none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  height: max-content;
+}
+
+/*Form Styles*/
+.App .ui.form {
+  margin: 0 auto;
+  width: 55%;
+}
+.App .ui.multiple.selection.dropdown.formDropdown{
+  width: 57%;
+}
+.App .ui.radio.checkbox{
+  margin-right: 18px;
+  font-size: 20px;
+}
 .App .field.submitField {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.App .ui.button.addButton {
-  background-color: #f1795a;
-  color: white;
-  margin-right: 5px;
-}
-
-
-.App .ui.button.deleteButton {
-  color: #0e8fab;
-  background-color: #f3f5f9;
-  
-}
-.App .ui.button.deleteButton:hover {
-  color: white;
-  background-color: #0e8fab;
-}
-
-.App .ui.button.addButton:hover,
-.App .ui.button[type="submit"]:hover {
-  opacity: 0.8;
-}
-
-.App .DateRangePickerInput_arrow {
-  margin: 0px 13px;
+/*Time and Date Picker styles*/
+.App .DateRangePicker {
+  display: block;
 }
 .App .DateRangePickerInput {
   width: 100%;
 }
 .App .DateInput {
-  width: 26%;
+  width: 25%;
 }
-
-.App .ui.grid>.row .resultsSection{
-  padding-left: 1rem;
-  margin-left: 40px;
-  margin-right: 30px;
-  overflow-y: auto;
+.App .DateRangePickerInput_arrow {
+  margin: 0px 15px;
 }
-
-.App .column.resultsSection .criteria {
-  font-size: 18px;
-  display: inline-block;
-  background-color: #f3f5f9;
-  margin-right: 10px;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 0;
-}
-.nextDay {
-  display: inline;
-  margin-left: 5px;
-  color:#666666;
-}
-
-.App .ui.header.sectionTitle  {
-  text-align: center;
-}
-
 .App .rc-time-picker {
   width: 19%;
 }
 
-.App h3.ui.header {
-  margin-bottom: 2px;
+/*Button styles*/
+.App .ui.button.searchButton{
+  background-color:#f1795a;
+  color: white;
+  width: 25%;
+}
+.App .ui.button.addButton {
+  background-color: #f1795a;
+  color: white;
+  margin-right: 5px;
+}
+.App .ui.button.deleteButton {
+  color: #0e8fab;
+  background-color: #f3f5f9;
+}
+.App .ui.button.searchButton:hover,
+.App .ui.button.addButton:hover {
+  opacity: 0.8;
+}
+.App .ui.button .deleteButton:hover {
+  color: white;
+  background-color: #0e8fab;
+}
+
+/*Table Style*/
+.App .ui.table th {
+  background-color:#f1795a;
+  color: white;
+}
+.App .ui.pagination {
+  justify-self: end;
 }

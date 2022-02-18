@@ -136,7 +136,7 @@ function App() {
     const dailyAverages = getAverages();
     return <Grid.Row>
             <GridColumn className="resultsSection">
-             <Header as="h2" className="sectionTitle">Daily Average Values by Metric</Header>
+             <Header as="h2" className="resultTitle">Daily Average Values by Metric</Header>
               <ResponsiveContainer height={600} width="100%">
                 <LineChart 
                   margin={{
@@ -228,10 +228,10 @@ function App() {
     return <Grid.Row>
               <GridColumn className="resultsSection">
                 <Ref innerRef={scrollToResults}>
-                  <Header as="h2" className="sectionTitle">Results</Header>
+                  <Header as="h2" className="resultTitle">Results</Header>
                 </Ref>
                 <Segment className='resultHeaderSegment'>
-                  <Segment className='criteriaSegment'>
+                  <Segment className='resultCriteriaSegment'>
                     {metricQuery.map((metric, index) => { //shows all criteria in single line, above the table
                       return <p className="criteria">
                               {metricDefinitions.find(x =>  x.metricCode === metric.metricCode).alias}
@@ -309,12 +309,12 @@ function App() {
 
   return (
     <div className="App">
-      <Header as="h1" className="title">Custom Query Search Tool</Header>
-      <Grid className="Grid">
+      <Header as="h1" className="mainTitle">Custom Query Search Tool</Header>
+      <Grid>
         <Grid.Row>
           <Grid.Column>
             <Form onSubmit={(event, data) => onSubmit()}>
-              <Header as="h2" className="sectionHeader">Restaurant and Transaction Information</Header>
+              <Header as="h2" className="sectionTitle">Restaurant and Transaction Information</Header>
               <Segment className="formSegment">
                 <Form.Field>
                   <Header as='h3'>Restaurant ID</Header>
@@ -324,6 +324,7 @@ function App() {
                     selection
                     placeholder="Select"
                     value={restaurantIds}
+                    className="formDropdown"
                     onChange={(event, data) => setRestaurantIds(data.value)}
                   />
                 </Form.Field>
@@ -372,7 +373,7 @@ function App() {
                 </Form.Field>
               </Segment>
               
-              <Header as="h2" className="sectionHeader metric">Metric Selection</Header>
+              <Header as="h2" className="sectionTitle metricTitle">Metric Selection</Header>
               
               {metricQuery.length !== 5 ? //add Add Criteria button
                 <Button type="button" className="addButton" floated="right" onClick={(event, data) => onAddCriteria()}>
@@ -392,7 +393,6 @@ function App() {
                                       options={metricOptions}
                                       selection
                                       placeholder="Select"
-                                      className="metricInputs"
                                       value={criteria.metricCode}
                                       onChange={(event, data) => onUpdateCriteria(data.value, index, "metricCode")}
                                     />
@@ -420,7 +420,6 @@ function App() {
                                     value={criteria.value}
                                     onChange={(event, data) => onUpdateCriteria(parseFloat(data.value), index, "value")}
                                     required
-                                    className="metricInputs"
                                   />
                                 </Form.Field>
                               </Grid.Column>
@@ -440,7 +439,7 @@ function App() {
               
               <Form.Field className='submitField'>
                 <Ref>
-                  <Button type="submit">SEARCH</Button>
+                  <Button type="submit" className="searchButton">SEARCH</Button>
                 </Ref>
               </Form.Field>
             </Form>
