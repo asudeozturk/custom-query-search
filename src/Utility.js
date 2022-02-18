@@ -114,22 +114,13 @@ export function getColor(index) {
             color = "#0e8fab";
             break;
         case 2:
-            color = "pink";
+            color = "hotPink";
             break;
         case 3:
             color = "red";
             break;
         case 4:
-            color = "yellow";
-            break;
-        case 5:
-            color = "purple";
-            break;
-        case 6:
-            color = "black";
-            break;
-        case 7:
-            color = "brown";
+            color = "gold";
             break;
         default:
           break;
