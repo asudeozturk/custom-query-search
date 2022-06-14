@@ -1,5 +1,5 @@
 # Custom Query Search Tool
-View the application: https://asudeozturk-customquerysearchtool.azurewebsites.net
+
 
 # Getting Started with Create React App
 
